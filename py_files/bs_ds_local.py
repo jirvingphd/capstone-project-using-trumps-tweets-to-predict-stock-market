@@ -4493,13 +4493,13 @@ class Clock(object):
         #from bs_ds_local import list2df
         import pandas as pd
         from IPython.display import display
-        df_lap_times = list2df(self._lap_times_list_)#,index_col='Lap #')
+        df_lap_times = list2df(self._lap_times_list_,df_kwds={})#,index_col='Lap #')
         df_lap_times.drop('Stop Time',axis=1,inplace=True)
         df_lap_times = df_lap_times[['Lap #','Start Time','Duration','Label']]
         dfs = df_lap_times.style.hide_index().set_caption('Summary Table of Clocked Processes').set_properties(subset=['Start Time','Duration'],**{'width':'140px'})
         display(dfs.set_table_styles([dict(selector='table, th', props=[('text-align', 'center')])]))
 
-def list2df(list, index_col=None, set_caption=None, return_df=True,df_kwds=None): #, sort_values='index'):
+def list2df(list, index_col=None, set_caption=None, return_df=True,df_kwds={}): #, sort_values='index'):
     
     """ Quick turn an appened list with a header (row[0]) into a pretty dataframe.
 
