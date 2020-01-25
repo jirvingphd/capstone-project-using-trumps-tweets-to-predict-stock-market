@@ -1661,7 +1661,7 @@ def check_df_groups_for_exp(df_full, list_of_exp_to_check, check_col='content_mi
     """Checks `check_col` column of input dataframe for expressions in list_of_exp_to_check and 
     counts the # present for each group, defined by the groupby_col and groupdict. 
     Returns a dataframe of counts."""
-    #from bs_ds_local import list2df
+    from bs_ds_local import list2df
     list_of_results = []      
 
     header_list= ['Term']
@@ -3215,7 +3215,7 @@ def collapse_df_by_group_index_col(twitter_df,group_index_col='int_bins',date_ti
 
 
 
-def load_stock_price_series(filename='IVE_bidask1min_08_23_2019.csv', 
+def load_stock_price_series(filename='../data/SP500_1min_01_23_2020.xlsx', 
                                folderpath='data/',
                                start_index = '2016-12-01', freq='T'):
     import pandas as pd
@@ -3238,6 +3238,12 @@ def load_stock_price_series(filename='IVE_bidask1min_08_23_2019.csv',
     elif 'csv' in ext: # USING THE PARTIAL PROCESSED (size reduced, datetime index)
         stock_df = pd.read_csv(full_filename, parse_dates=True)
         stock_df['date_time_index'] = pd.to_datetime( stock_df['date_time_index'])
+        
+    elif 'xlsx' in ext:
+        stock_df = pd.read_excel(full_filename,parse_dates=True)
+        date_time_index = stock_df["Date"].astype('str') + ' '+stock_df['Time'].astype('str')
+        stock_df['date_time_index'] = pd.to_datetime(date_time_index)
+
     else:
         raise Exception('file extension not csv or txt')
     

@@ -492,7 +492,7 @@ def make_word2vec_model(df, text_column='content_min_clean', regex_pattern ="([a
     w2v_params = {'sg':1, #skip-gram=1
     'hs':0, #1=heirarchyical softmarx, if 0, and 'negative' is non-zero, use negative sampling
     'negative': 5, # number of 'noisy" words to remove by negative sampling
-    'ns_exponent': 0.75, # value between -1 to 1. 0.0 samples all words equaly, 1.0 samples proportional to frequency, negative value=lowfrequency words sampled more
+    # 'ns_exponent': 0.75, # value between -1 to 1. 0.0 samples all words equaly, 1.0 samples proportional to frequency, negative value=lowfrequency words sampled more
     }
 
     for k,v in kwargs.items():
@@ -512,8 +512,7 @@ def make_word2vec_model(df, text_column='content_min_clean', regex_pattern ="([a
         print(f'[i] Training Word2Vec model using:\n\t{params_to_print}')
         # print(w2v_params)
 
-    wv_keras = Word2Vec(text_data, size=vector_size, window=window, min_count=min_count, sg=w2v_params['sg'],
-     hs=w2v_params['hs'], negative=w2v_params['negative'], ns_exponent=w2v_params['ns_exponent'], workers=workers)
+    wv_keras = Word2Vec(text_data, size=vector_size, window=window, min_count=min_count, workers=workers,**w2v_params)
     
     # Train Word2Vec Model
     wv_keras.train(text_data,total_examples=wv_keras.corpus_count, epochs=epochs)
@@ -1691,9 +1690,9 @@ class Word2vecParams():
     
         
         
-def get_w2v_kwargs(params):
-    ## get kwargs for make_word2vecmodel
-    kwarg_keys =['sg','hs','negative','ns_exponent']
-    kwargs = {k:params[k] for k in kwarg_keys}
-    return kwargs
+# def get_w2v_kwargs(params):
+#     ## get kwargs for make_word2vecmodel
+#     kwarg_keys =['sg','hs','negative','ns_exponent']
+#     kwargs = {k:params[k] for k in kwarg_keys}
+#     return kwargs
 
