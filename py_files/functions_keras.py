@@ -1470,7 +1470,10 @@ x_window=None, n_features=None, inverse_tf=False, scaler=None, include_train_dat
     # bs.display_side_by_side(func_df,func_df_from_train)
     ## combine into df
     df_all_preds = pd.concat([df for df in df_list],axis=1)
-    df_all_preds = bs.drop_cols(df_all_preds,['i_']);
+    
+    drop_cols = [col for col in df_all_preds.columns if 'i_' in col]
+    
+    df_all_preds = df_all_preds.drop(columns=drop_cols);
 
 
     ## ADD TRAINING DATA TO DATAFRAME IF REQUESTED
@@ -1880,7 +1883,12 @@ def compare_model_pred_methods(model, true_train_series,true_test_series, test_g
     # bs.display_side_by_side(func_df,func_df_from_train)
 
     df_all_preds = pd.concat([df for df in df_list],axis=1)
-    df_all_preds = bs.drop_cols(df_all_preds,['i_'])
+    
+    # df_all_preds = bs.drop_cols(df_all_preds,['i_'])
+    drop_cols = [col for col in df_all_preds.columns if 'i_' in col]
+    
+    df_all_preds = df_all_preds.drop(columns=drop_cols);
+
     # print(df_all_preds.shape)
     if plot_with_train_data:
         df_all_preds=pd.concat([true_train_series.rename('true_train_price'),df_all_preds],axis=1)
@@ -1932,8 +1940,14 @@ from_train_preds=False):
     return df_model_out 
 
 
-def evaluate_classification(*args,**kwargs):
-    raise Exception('Use `evaluate_classification_model` instead of `evaluate_classification`.')
+def evaluate_classification(model, history, *args,**kwargs):
+    
+    try:
+        pop_list = ['report_as_df']
+        [kwargs.pop(x) for x in pop_list]
+        return evaluate_classification_model(model,*args,history=history, **kwargs)
+    except:
+        raise Exception('Use `evaluate_classification_model` instead of `evaluate_classification`.')
 
 # def evaluate_classification(model, history, X_train,X_test,y_train,y_test,report_as_df=True, binary_classes=True,
 #                             conf_matrix_classes= ['Decrease','Increase'],
@@ -2141,7 +2155,9 @@ def evaluate_classification_model(model,  X_train,X_test,y_train,y_test, history
 
     ## PLOT HISTORY
     if history is not None:
-        bs.plot_keras_history( history,filename_base=history_filename, save_fig=save_history,title_text='')
+        import functions_combined_BEST as ji
+
+        ji.plot_keras_history( history,filename_base=history_filename, save_fig=save_history,title_text='')
 
     print('\n')
     print('---'*num_dashes)

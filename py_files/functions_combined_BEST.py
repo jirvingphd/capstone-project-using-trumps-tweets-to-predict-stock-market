@@ -1,3 +1,5 @@
+import cufflinks as cf
+cf.go_offline()
 import functions_keras as jik
 import function_widgets as jiw
 import functions_nlp as jin
@@ -674,7 +676,7 @@ def load_raw_stock_data_from_txt(filename='IVE_bidask1min_08_23_2019.csv',
     print(f"[i] Loading {fullfilename}...\n")
 
     ## IF USING TRUE RAW TXT FILES:
-    ext = filename.split('.')[-1]
+    ext = fullfilename.split('.')[-1]
     if 'txt' in ext:
 
         headers = ['Date','Time','BidOpen','BidHigh','BidLow','BidClose','AskOpen','AskHigh','AskLow','AskClose']
@@ -690,9 +692,17 @@ def load_raw_stock_data_from_txt(filename='IVE_bidask1min_08_23_2019.csv',
     elif 'csv' in ext: # USING THE PARTIAL PROCESSED (size reduced, datetime index)
         stock_df = pd.read_csv(fullfilename, parse_dates=True)
         stock_df['date_time_index'] = pd.to_datetime( stock_df['date_time_index'])
+    elif 'xlsx' in ext:
+        # raise Exception('file extension not csv or txt')
+        stock_df = pd.read_excel(fullfilename,parse_dates=True)
+        date_time_index = stock_df["Date"].astype('str') + ' '+stock_df['Time'].astype('str')
+        stock_df['date_time_index'] = pd.to_datetime(date_time_index)
     else:
-        raise Exception('file extension not csv or txt')
-    
+        import pdb
+        print(f'Failed loading {fullfilename}')
+        # pdb.set_trace()
+        print('\n\n[!] WARNING: DataFrame is a dummy. Loading failed.')
+        stock_df = pd.DataFrame(columns=['date_time_index','BidClose'])
     stock_df.set_index('date_time_index', inplace=True, drop=False)
 
     # Select only the days after start_index
@@ -2299,8 +2309,8 @@ def plotly_true_vs_preds_subplots(df_model_preds,
     import pandas as pd
     import numpy as np
     import plotly.graph_objs as go
-    import cufflinks as cf
-    cf.go_offline()
+    # import cufflinks as cf
+    # cf.go_offline()
 
     from plotly.offline import iplot#download_plotlyjs, init_notebook_mode, plot, iplot
 #     init_notebook_mode(connected=True)    
@@ -2419,8 +2429,8 @@ as_figure = True,show_fig=True,figsize=(900,400),iplot_kwargs=None): #,name='S&P
 
     import plotly.tools as tls
     import plotly.graph_objs as go
-    import cufflinks as cf
-    cf.go_offline()
+    # import cufflinks as cf
+    # cf.go_offline()
     init_notebook_mode(connected=False)
 
     # py.init_notebook_mode(connected=True)
@@ -2429,7 +2439,8 @@ as_figure = True,show_fig=True,figsize=(900,400),iplot_kwargs=None): #,name='S&P
         title = "Time series with range slider and selector"
 
     # %matplotlib inline
-    if plotly.__version__<'4.0':
+    override=True
+    if override:#plotly.__version__<'4.0':
         if theme=='solar':
             solar_layout = def_cufflinks_solar_theme(as_layout=True)
             range_widgets = def_plotly_date_range_widgets(as_layout=True)
@@ -3886,7 +3897,7 @@ def display_same_tweet_diff_cols(df_sampled,index=None,columns = ['content' ,'co
                 print('ERROR')
                 print(index,'. type= ',type(i))
                 # else:
-                #     raise Exception('string is not valid date index')
+                #     ra2310se Exception('string is not valid date index')
 
         elif isinstance(index, int):
             i = index

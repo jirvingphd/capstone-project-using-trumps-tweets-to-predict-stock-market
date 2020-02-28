@@ -4924,3 +4924,323 @@ class Word2vecParams():
         orient='index',columns=['info'])
 
 ```
+### SOURCE:
+```python
+def make_word2vec_model(df, text_column='content_min_clean', regex_pattern ="([a-zA-Z]+(?:'[a-z]+)?)",verbose=0,
+                       vector_size=300,window=3,min_count=1, workers=3,epochs=10,summary=True, return_full=False,**kwargs):
+    """    w2v_params = {'sg':1, #skip-gram=1
+                'hs':0, #1=heirarchyical softmarx, if 0, and 'negative' is non-zero, use negative sampling
+                'negative': 5, # number of 'noisy" words to remove by negative sampling
+                'ns_exponent': 0.75, # value between -1 to 1. 0.0 samples all words equaly, 
+                1.0 samples proportional to frequency, negative value=lowfrequency words sampled more
+    }"""
+    
+
+    ## Regexp_tokenize text_column
+    from nltk import regexp_tokenize
+    text_data = df[text_column].apply(lambda x: regexp_tokenize(x, regex_pattern))
+
+    ## Instantiate Word2Vec Model
+    from gensim.models import Word2Vec
+    vector_size = 300
+
+    w2v_params = {'sg':1, #skip-gram=1
+    'hs':0, #1=heirarchyical softmarx, if 0, and 'negative' is non-zero, use negative sampling
+    'negative': 5, # number of 'noisy" words to remove by negative sampling
+    # 'ns_exponent': 0.75, # value between -1 to 1. 0.0 samples all words equaly, 1.0 samples proportional to frequency, negative value=lowfrequency words sampled more
+    }
+
+    for k,v in kwargs.items():
+        if k in w2v_params:
+            w2v_params[k] = v
+
+    if verbose>0:
+        # print(f'[i] Using these params for Word2Vec model trained:')
+        params_to_print={}
+        params_to_print['min_count'] = min_count
+        params_to_print['window'] = window
+        params_to_print['epochs'] = epochs
+
+        for k,v in w2v_params.items():
+            params_to_print[k] = v
+
+        print(f'[i] Training Word2Vec model using:\n\t{params_to_print}')
+        # print(w2v_params)
+
+    wv_keras = Word2Vec(text_data, size=vector_size, window=window, min_count=min_count, workers=workers,**w2v_params)
+    
+    # Train Word2Vec Model
+    wv_keras.train(text_data,total_examples=wv_keras.corpus_count, epochs=epochs)
+
+    
+    ## Display summary
+    if summary:
+        wv = wv_keras.wv
+        vocab_size = len(wv_keras.wv.vocab)
+        print(f'\t[i] Training complete. model vocab has {vocab_size} words, with vector size {vector_size}.')
+        if return_full:
+            ans = 'full model'
+        else:
+            ans = 'model.wv'
+        
+        print(f'\t[o] returned model is {ans}.')
+        
+    if return_full:
+        return wv_keras
+    else:
+        return wv_keras.wv
+
+```
+### SOURCE:
+```python
+def get_wv_from_word2vec(word2vec_model):
+    """Checks if model is full word2vec or .wv attribute. 
+    Returns wv."""
+    import gensim 
+    if isinstance(word2vec_model,gensim.models.word2vec.Word2Vec):
+        wv = word2vec_model.wv
+    elif isinstance(word2vec_model,gensim.models.keyedvectors.Word2VecKeyedVectors):
+        wv = word2vec_model
+    return wv
+
+```
+### SOURCE:
+```python
+def make_word2vec_model(df, text_column='content_min_clean', regex_pattern ="([a-zA-Z]+(?:'[a-z]+)?)",verbose=0,
+                       vector_size=300,window=3,min_count=1, workers=3,epochs=10,summary=True, return_full=False,**kwargs):
+    """    w2v_params = {'sg':1, #skip-gram=1
+                'hs':0, #1=heirarchyical softmarx, if 0, and 'negative' is non-zero, use negative sampling
+                'negative': 5, # number of 'noisy" words to remove by negative sampling
+                'ns_exponent': 0.75, # value between -1 to 1. 0.0 samples all words equaly, 
+                1.0 samples proportional to frequency, negative value=lowfrequency words sampled more
+    }"""
+    
+
+    ## Regexp_tokenize text_column
+    from nltk import regexp_tokenize
+    text_data = df[text_column].apply(lambda x: regexp_tokenize(x, regex_pattern))
+
+    ## Instantiate Word2Vec Model
+    from gensim.models import Word2Vec
+    vector_size = 300
+
+    w2v_params = {'sg':1, #skip-gram=1
+    'hs':0, #1=heirarchyical softmarx, if 0, and 'negative' is non-zero, use negative sampling
+    'negative': 5, # number of 'noisy" words to remove by negative sampling
+    # 'ns_exponent': 0.75, # value between -1 to 1. 0.0 samples all words equaly, 1.0 samples proportional to frequency, negative value=lowfrequency words sampled more
+    }
+
+    for k,v in kwargs.items():
+        if k in w2v_params:
+            w2v_params[k] = v
+
+    if verbose>0:
+        # print(f'[i] Using these params for Word2Vec model trained:')
+        params_to_print={}
+        params_to_print['min_count'] = min_count
+        params_to_print['window'] = window
+        params_to_print['epochs'] = epochs
+
+        for k,v in w2v_params.items():
+            params_to_print[k] = v
+
+        print(f'[i] Training Word2Vec model using:\n\t{params_to_print}')
+        # print(w2v_params)
+
+    wv_keras = Word2Vec(text_data, size=vector_size, window=window, min_count=min_count, workers=workers,**w2v_params)
+    
+    # Train Word2Vec Model
+    wv_keras.train(text_data,total_examples=wv_keras.corpus_count, epochs=epochs)
+
+    
+    ## Display summary
+    if summary:
+        wv = wv_keras.wv
+        vocab_size = len(wv_keras.wv.vocab)
+        print(f'\t[i] Training complete. model vocab has {vocab_size} words, with vector size {vector_size}.')
+        if return_full:
+            ans = 'full model'
+        else:
+            ans = 'model.wv'
+        
+        print(f'\t[o] returned model is {ans}.')
+        
+    if return_full:
+        return wv_keras
+    else:
+        return wv_keras.wv
+
+```
+### SOURCE:
+```python
+def get_wv_from_word2vec(word2vec_model):
+    """Checks if model is full word2vec or .wv attribute. 
+    Returns wv."""
+    import gensim 
+    if isinstance(word2vec_model,gensim.models.word2vec.Word2Vec):
+        wv = word2vec_model.wv
+    elif isinstance(word2vec_model,gensim.models.keyedvectors.Word2VecKeyedVectors):
+        wv = word2vec_model
+    return wv
+
+```
+### SOURCE:
+```python
+def make_word2vec_model(df, text_column='content_min_clean', regex_pattern ="([a-zA-Z]+(?:'[a-z]+)?)",verbose=0,
+                       vector_size=300,window=3,min_count=1, workers=3,epochs=10,summary=True, return_full=False,**kwargs):
+    """    w2v_params = {'sg':1, #skip-gram=1
+                'hs':0, #1=heirarchyical softmarx, if 0, and 'negative' is non-zero, use negative sampling
+                'negative': 5, # number of 'noisy" words to remove by negative sampling
+                'ns_exponent': 0.75, # value between -1 to 1. 0.0 samples all words equaly, 
+                1.0 samples proportional to frequency, negative value=lowfrequency words sampled more
+    }"""
+    
+
+    ## Regexp_tokenize text_column
+    from nltk import regexp_tokenize
+    text_data = df[text_column].apply(lambda x: regexp_tokenize(x, regex_pattern))
+
+    ## Instantiate Word2Vec Model
+    from gensim.models import Word2Vec
+    vector_size = 300
+
+    w2v_params = {'sg':1, #skip-gram=1
+    'hs':0, #1=heirarchyical softmarx, if 0, and 'negative' is non-zero, use negative sampling
+    'negative': 5, # number of 'noisy" words to remove by negative sampling
+    # 'ns_exponent': 0.75, # value between -1 to 1. 0.0 samples all words equaly, 1.0 samples proportional to frequency, negative value=lowfrequency words sampled more
+    }
+
+    for k,v in kwargs.items():
+        if k in w2v_params:
+            w2v_params[k] = v
+
+    if verbose>0:
+        # print(f'[i] Using these params for Word2Vec model trained:')
+        params_to_print={}
+        params_to_print['min_count'] = min_count
+        params_to_print['window'] = window
+        params_to_print['epochs'] = epochs
+
+        for k,v in w2v_params.items():
+            params_to_print[k] = v
+
+        print(f'[i] Training Word2Vec model using:\n\t{params_to_print}')
+        # print(w2v_params)
+
+    wv_keras = Word2Vec(text_data, size=vector_size, window=window, min_count=min_count, workers=workers,**w2v_params)
+    
+    # Train Word2Vec Model
+    wv_keras.train(text_data,total_examples=wv_keras.corpus_count, epochs=epochs)
+
+    
+    ## Display summary
+    if summary:
+        wv = wv_keras.wv
+        vocab_size = len(wv_keras.wv.vocab)
+        print(f'\t[i] Training complete. model vocab has {vocab_size} words, with vector size {vector_size}.')
+        if return_full:
+            ans = 'full model'
+        else:
+            ans = 'model.wv'
+        
+        print(f'\t[o] returned model is {ans}.')
+        
+    if return_full:
+        return wv_keras
+    else:
+        return wv_keras.wv
+
+```
+### SOURCE:
+```python
+def get_wv_from_word2vec(word2vec_model):
+    """Checks if model is full word2vec or .wv attribute. 
+    Returns wv."""
+    import gensim 
+    if isinstance(word2vec_model,gensim.models.word2vec.Word2Vec):
+        wv = word2vec_model.wv
+    elif isinstance(word2vec_model,gensim.models.keyedvectors.Word2VecKeyedVectors):
+        wv = word2vec_model
+    return wv
+
+```
+### SOURCE:
+```python
+def make_word2vec_model(df, text_column='content_min_clean', regex_pattern ="([a-zA-Z]+(?:'[a-z]+)?)",verbose=0,
+                       vector_size=300,window=3,min_count=1, workers=3,epochs=10,summary=True, return_full=False,**kwargs):
+    """    w2v_params = {'sg':1, #skip-gram=1
+                'hs':0, #1=heirarchyical softmarx, if 0, and 'negative' is non-zero, use negative sampling
+                'negative': 5, # number of 'noisy" words to remove by negative sampling
+                'ns_exponent': 0.75, # value between -1 to 1. 0.0 samples all words equaly, 
+                1.0 samples proportional to frequency, negative value=lowfrequency words sampled more
+    }"""
+    
+
+    ## Regexp_tokenize text_column
+    from nltk import regexp_tokenize
+    text_data = df[text_column].apply(lambda x: regexp_tokenize(x, regex_pattern))
+
+    ## Instantiate Word2Vec Model
+    from gensim.models import Word2Vec
+    vector_size = 300
+
+    w2v_params = {'sg':1, #skip-gram=1
+    'hs':0, #1=heirarchyical softmarx, if 0, and 'negative' is non-zero, use negative sampling
+    'negative': 5, # number of 'noisy" words to remove by negative sampling
+    # 'ns_exponent': 0.75, # value between -1 to 1. 0.0 samples all words equaly, 1.0 samples proportional to frequency, negative value=lowfrequency words sampled more
+    }
+
+    for k,v in kwargs.items():
+        if k in w2v_params:
+            w2v_params[k] = v
+
+    if verbose>0:
+        # print(f'[i] Using these params for Word2Vec model trained:')
+        params_to_print={}
+        params_to_print['min_count'] = min_count
+        params_to_print['window'] = window
+        params_to_print['epochs'] = epochs
+
+        for k,v in w2v_params.items():
+            params_to_print[k] = v
+
+        print(f'[i] Training Word2Vec model using:\n\t{params_to_print}')
+        # print(w2v_params)
+
+    wv_keras = Word2Vec(text_data, size=vector_size, window=window, min_count=min_count, workers=workers,**w2v_params)
+    
+    # Train Word2Vec Model
+    wv_keras.train(text_data,total_examples=wv_keras.corpus_count, epochs=epochs)
+
+    
+    ## Display summary
+    if summary:
+        wv = wv_keras.wv
+        vocab_size = len(wv_keras.wv.vocab)
+        print(f'\t[i] Training complete. model vocab has {vocab_size} words, with vector size {vector_size}.')
+        if return_full:
+            ans = 'full model'
+        else:
+            ans = 'model.wv'
+        
+        print(f'\t[o] returned model is {ans}.')
+        
+    if return_full:
+        return wv_keras
+    else:
+        return wv_keras.wv
+
+```
+### SOURCE:
+```python
+def get_wv_from_word2vec(word2vec_model):
+    """Checks if model is full word2vec or .wv attribute. 
+    Returns wv."""
+    import gensim 
+    if isinstance(word2vec_model,gensim.models.word2vec.Word2Vec):
+        wv = word2vec_model.wv
+    elif isinstance(word2vec_model,gensim.models.keyedvectors.Word2VecKeyedVectors):
+        wv = word2vec_model
+    return wv
+
+```
