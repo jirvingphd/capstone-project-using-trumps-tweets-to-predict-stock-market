@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import sys
+sys.path.append('py_files/')
+
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -27,7 +30,7 @@ import functions_combined_BEST as ji
 # Suppress warnings
 import warnings
 # warnings.filterwarnings('ignore')
-dash.Dash(assets_ignore='z_external_stylesheet')
+dash.Dash(assets_ignore=['z_external_stylesheet.css','typography_older.css'])
 # external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 ## Load in README
@@ -151,6 +154,9 @@ fig_indicators = ji.plotly_technical_indicators(stock_df, as_figure=True, show_f
 
 md_example_tweet_forms = ji.display_same_tweet_diff_cols(twitter_df, columns=['content','content_min_clean',
 'cleaned_stopped_content'], for_dash=True)#,'cleaned_stopped_tokens'
+
+
+
 
 
 
