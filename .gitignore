@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Mac folders
+*.DS_Store
 # C extensions
 *.so
 
@@ -123,3 +125,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+src/twint/
+Trump Tweets/.DS_Store
