@@ -1,5 +1,6 @@
 import cufflinks as cf
 cf.go_offline()
+
 import functions_keras as jik
 import function_widgets as jiw
 import functions_nlp as jin
